@@ -16,12 +16,13 @@ import javax.ws.rs.*;
  * Created by abg7 on 11/6/2015.
  */
 // The Java class will be hosted at the URI path "/helloworld"
-@Path("/kimSQL")
+@Path("/kimSQL/")
 public class HelloWorld {
     private static final String DB_URI = "jdbc:postgresql://localhost:5432/kimSQL";
     private static final String DB_LOGINID = "postgres";
     private static final String DB_PASSWORD = "postgres";
 
+    //Function to get an account name when given the id
     @GET
     @Path("/account/{id}")
     @Produces("text/plain")
@@ -47,23 +48,51 @@ public class HelloWorld {
         return result;
     }
 
+    //Function to get the current price of a stock when given the amount of shares owned
     @GET
-    @Path("/accounts")
+    @Path("/stock/{sharesOwned}")
     @Produces("text/plain")
-    public String getPlayers(@PathParam("id") int id) {
-        String result = "";
+    public String getStockPrice(@PathParam("sharesOwned") int shares) {
+        float result;
         try {
             Class.forName("org.postgresql.Driver");
             Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM Account");
-            while (resultSet.next()) {
-                result += resultSet.getInt(1) + " " + resultSet.getString(3) + " " + resultSet.getString(2) + "\n";
+            ResultSet resultSet = statement.executeQuery("SELECT currentPrice FROM Stock WHERE sharesOwned = " + shares);
+            if (resultSet.next()) {
+                //result = resultSet.getInt(1) + " " + resultSet.getString(3) + " " + resultSet.getString(2);
+                result = resultSet.getFloat(1);
+            } else {
+                result = 0;
             }
             resultSet.close();
             statement.close();
             connection.close();
         } catch (Exception e) {
+            //result = e.getMessage();
+            result = 0;
+        }
+        return Float.toString(result);
+    }
+
+    //Function to get all the account names
+    @GET
+    @Path("/accounts")
+    @Produces("text/plain")
+    public String getPlayers(@PathParam("id") int id) {
+        String result = "";
+            try {
+                Class.forName("org.postgresql.Driver");
+                Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
+                Statement statement = connection.createStatement();
+                ResultSet resultSet = statement.executeQuery("SELECT * FROM Account");
+                while (resultSet.next()) {
+                    result += resultSet.getInt(1) + " " + resultSet.getString(3) + " " + resultSet.getString(2) + "\n";
+                }
+                resultSet.close();
+                statement.close();
+                connection.close();
+            } catch (Exception e) {
             result = e.getMessage();
         }
         return result;
@@ -79,8 +108,8 @@ public class HelloWorld {
     }
 
     /**
-     * PUT method for creating an instance of Person with a given ID - If the
-     * player already exists, replace them with the new player field values. We do this
+     * PUT method for creating an instance of account with a given ID - If the
+     * account already exists, replace them with the new account field values. We do this
      * because PUT is idempotent, meaning that running the same PUT several
      * times does not change the database.
      *
@@ -118,15 +147,15 @@ public class HelloWorld {
     }
 
     /**
-     * POST method for creating an instance of Person with a new, unique ID
+     * POST method for creating an instance of Account with a new, unique ID
      * number. We do this because POST is not idempotent, meaning that running
      * the same POST several times creates multiple objects with unique IDs but
      * with the same values.
      * <p/>
-     * The method creates a new, unique ID by querying the player table for the
+     * The method creates a new, unique ID by querying the account table for the
      * largest ID and adding 1 to that. Using a sequence would be a better solution.
      *
-     * @param playerLine a string representation of the player in the format: emailAddress name
+     * @param playerLine a string representation of the account in the format: password account
      * @return status message
      */
     @POST
@@ -158,12 +187,12 @@ public class HelloWorld {
     }
 
     /**
-     * DELETE method for deleting and instance of player with the given ID. If
+     * DELETE method for deleting and instance of account with the given ID. If
      * the player doesn't exist, then don't delete anything. DELETE is idempotent, so
      * sending the same command multiple times should result in the same side
      * effect, though the return value may be different.
      *
-     * @param id the ID of the player to be returned
+     * @param id the ID of the account to be returned
      * @return a simple text confirmation message
      */
     @DELETE
