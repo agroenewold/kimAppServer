@@ -52,7 +52,7 @@ public class HelloWorld {
     @GET
     @Path("/stock/{sharesOwned}")
     @Produces("text/plain")
-    public String getStockPrice(@PathParam("sharesOwned") int shares) {
+    public String getStockPriceFromShares(@PathParam("sharesOwned") int shares) {
         float result;
         try {
             Class.forName("org.postgresql.Driver");
@@ -74,7 +74,34 @@ public class HelloWorld {
         }
         return Float.toString(result);
     }
-
+/*
+    //Function to get the current price of a stock when given the amount of shares owned
+    @GET
+    @Path("/stock/{stockName}")
+    @Produces("text/plain")
+    public String getStockPrice(@PathParam("stockName") String stockName) {
+        String result;
+        try {
+            Class.forName("org.postgresql.Driver");
+            Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT currentPrice FROM Stock WHERE sharesOwned = " + stockName);
+            if (resultSet.next()) {
+                //result = resultSet.getInt(1) + " " + resultSet.getString(3) + " " + resultSet.getString(2);
+                result = resultSet.getString(1);
+            } else {
+                result = "dsaf";
+            }
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (Exception e) {
+            //result = e.getMessage();
+            result = "sdafas";
+        }
+        return result;
+    }
+*/
     //Function to get all the account names
     @GET
     @Path("/accounts")
@@ -93,6 +120,29 @@ public class HelloWorld {
                 statement.close();
                 connection.close();
             } catch (Exception e) {
+            result = e.getMessage();
+        }
+        return result;
+    }
+
+    //Function to get all the account names
+    @GET
+    @Path("/stocks")
+    @Produces("text/plain")
+    public String getStocks(@PathParam("id") int id) {
+        String result = "";
+        try {
+            Class.forName("org.postgresql.Driver");
+            Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT ticker FROM Stock");
+            while (resultSet.next()) {
+                result += resultSet.getString(1) + "\n";
+            }
+            resultSet.close();
+            statement.close();
+            connection.close();
+        } catch (Exception e) {
             result = e.getMessage();
         }
         return result;
