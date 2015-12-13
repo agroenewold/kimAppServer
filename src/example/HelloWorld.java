@@ -53,26 +53,25 @@ public class HelloWorld {
     @Path("/stock/{stockid}")
     @Produces("text/plain")
     public String getStockPriceFromShares(@PathParam("stockid") int stockID) {
-        float result;
+        String result;
         try {
             Class.forName("org.postgresql.Driver");
             Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT buyPrice FROM Stock WHERE id = " + stockID);
+            ResultSet resultSet = statement.executeQuery("SELECT sector, buyPrice, targetPrice, sharesOwned FROM Stock WHERE id = " + stockID);
             if (resultSet.next()) {
                 //result = resultSet.getInt(1) + " " + resultSet.getString(3) + " " + resultSet.getString(2);
-                result = resultSet.getFloat(1);
+                result = resultSet.getString(1) + "/n" + resultSet.getFloat(2) + "/n" + resultSet.getFloat(3) + "/n" + resultSet.getInt(4) + "\n";
             } else {
-                result = 0;
+                result = "0";
             }
             resultSet.close();
             statement.close();
             connection.close();
         } catch (Exception e) {
-            //result = e.getMessage();
-            result = 0;
+            result = e.getMessage();
         }
-        return Float.toString(result);
+        return result;
     }
 /*
     //Function to get the current price of a stock when given the amount of shares owned
