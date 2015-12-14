@@ -61,7 +61,7 @@ public class HelloWorld {
             ResultSet resultSet = statement.executeQuery("SELECT sector, buyPrice, targetPrice, sharesOwned FROM Stock WHERE id = " + stockID);
             if (resultSet.next()) {
                 //result = resultSet.getInt(1) + " " + resultSet.getString(3) + " " + resultSet.getString(2);
-                result = resultSet.getString(1) + "/n" + resultSet.getFloat(2) + "/n" + resultSet.getFloat(3) + "/n" + resultSet.getInt(4) + "\n";
+                result = resultSet.getString(1) + "\n" + resultSet.getFloat(2) + "\n" + resultSet.getFloat(3) + "\n" + resultSet.getInt(4) + "\n";
             } else {
                 result = "0";
             }
