@@ -79,35 +79,7 @@ public class HelloWorld {
         }
         return result;
     }
-/*  /* getStockPriceFromShares gets the current price of a stock when given the amount of shares owned
-    *  @param stockID receives the amount of shares owned
-    *  @return the current price of the stock
-    @GET
-    @Path("/stock/{stockName}")
-    @Produces("text/plain")
-    public String getStockPrice(@PathParam("stockName") String stockName) {
-        String result;
-        try {
-            Class.forName("org.postgresql.Driver");
-            Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT currentPrice FROM Stock WHERE sharesOwned = " + stockName);
-            if (resultSet.next()) {
-                //result = resultSet.getInt(1) + " " + resultSet.getString(3) + " " + resultSet.getString(2);
-                result = resultSet.getString(1);
-            } else {
-                result = "dsaf";
-            }
-            resultSet.close();
-            statement.close();
-            connection.close();
-        } catch (Exception e) {
-            //result = e.getMessage();
-            result = "sdafas";
-        }
-        return result;
-    }
-*/
+
     /* getPlayers gets all the account names
     *  @param id receives the account id
     *  @return the account names as strings
@@ -201,28 +173,32 @@ public class HelloWorld {
      * because PUT is idempotent, meaning that running the same PUT several
      * times does not change the database.
      *
-     * @param id the ID for the new stock, assumed to be unique
      * @param playerLine a string representation of the account in the format: username password
      * @return status message
      */
     @PUT
-    @Path("/account/{id}")
+    @Path("/accountPut")
     @Consumes("text/plain")
     @Produces("text/plain")
-    public String putPlayer(@PathParam("id") int id, String playerLine) {
+    public String putPlayer(String playerLine) {
         String result;
         StringTokenizer st = new StringTokenizer(playerLine);
-        String password = st.nextToken(), name = st.nextToken();
+        String name = st.nextToken(), password = st.nextToken();
         try {
             Class.forName("org.postgresql.Driver");
             Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM Account WHERE id=" + id);
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM Account WHERE userID=" + name);
             if (resultSet.next()) {
-                statement.executeUpdate("UPDATE Account SET password='" + password + "' name='" + name + "' WHERE id=" + id);
-                result = "Account " + id + " updated...";
+                statement.executeUpdate("UPDATE Account SET password='" + password + "' WHERE userID=" + name);
+                result = "Account " + name + " updated...";
             } else {
-                statement.executeUpdate("INSERT INTO Account VALUES (" + id + ", '" + password + "', '" + name + "')");
+                int id = -1;
+                ResultSet resultSet2 = statement.executeQuery("SELECT MAX(id) FROM Account");
+                if (resultSet2.next()) {
+                    id = resultSet.getInt(1) + 1;
+                }
+                statement.executeUpdate("INSERT INTO Account VALUES (" + id + ", '" + name + "', '" + password + "')");
                 result = "Account " + id + " added...";
             }
             resultSet.close();
@@ -247,23 +223,23 @@ public class HelloWorld {
      * @return status message
      */
     @POST
-    @Path("/account")
+    @Path("/accountPost")
     @Consumes("text/plain")
     @Produces("text/plain")
     public String postPlayer(String playerLine) {
         String result;
         StringTokenizer st = new StringTokenizer(playerLine);
         int id = -1;
-        String password = st.nextToken(), name = st.nextToken();
+        String name = st.nextToken(":"), password = st.nextToken(":");
         try {
             Class.forName("org.postgresql.Driver");
             Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
             Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT MAX(ID) FROM Account");
+            ResultSet resultSet = statement.executeQuery("SELECT MAX(id) FROM Account");
             if (resultSet.next()) {
                 id = resultSet.getInt(1) + 1;
             }
-            statement.executeUpdate("INSERT INTO Account VALUES (" + id + ", '" + password + "', '" + name + "')");
+            statement.executeUpdate("INSERT INTO Account VALUES (" + id + ", '" + name + "', '" + password + "', " + false + ")");
             resultSet.close();
             statement.close();
             connection.close();
