@@ -251,7 +251,7 @@ public class HelloWorld {
     }
 
     /**
-     * POST method for creating an instance of Account with a new, unique ID
+     * POST method for creating an instance of Stock with a new, unique ID
      * number. We do this because POST is not idempotent, meaning that running
      * the same POST several times creates multiple objects with unique IDs but
      * with the same values.
