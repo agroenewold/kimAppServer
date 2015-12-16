@@ -12,17 +12,21 @@ import java.util.StringTokenizer;
 
 import javax.ws.rs.*;
 
-/**
- * Created by abg7 on 11/6/2015.
+/* @author Lydia Cupery, Beka Agava, Andrew Groenewold, Moses Mangunrahardja
+ * The Java class will be hosted at the URI path "/helloworld"
  */
-// The Java class will be hosted at the URI path "/helloworld"
 @Path("/kimSQL/")
 public class HelloWorld {
+
+    //declare public variables
     private static final String DB_URI = "jdbc:postgresql://localhost:5432/kimSQL";
     private static final String DB_LOGINID = "postgres";
     private static final String DB_PASSWORD = "postgres";
 
-    //Function to get an account name when given the id
+    /* getPlayer gets an account name when given the id
+    *  @param id receives the account id
+    *  @return the account name as a string
+    */
     @GET
     @Path("/account/{id}")
     @Produces("text/plain")
@@ -47,8 +51,10 @@ public class HelloWorld {
         }
         return result;
     }
-
-    //Function to get the current price of a stock when given the amount of shares owned
+    /* getStockPriceFromShares gets the current price of a stock when given the amount of shares owned
+    *  @param stockID receives the amount of shares owned
+    *  @return the current price of the stock
+    */
     @GET
     @Path("/stock/{stockid}")
     @Produces("text/plain")
@@ -73,8 +79,9 @@ public class HelloWorld {
         }
         return result;
     }
-/*
-    //Function to get the current price of a stock when given the amount of shares owned
+/*  /* getStockPriceFromShares gets the current price of a stock when given the amount of shares owned
+    *  @param stockID receives the amount of shares owned
+    *  @return the current price of the stock
     @GET
     @Path("/stock/{stockName}")
     @Produces("text/plain")
@@ -101,7 +108,10 @@ public class HelloWorld {
         return result;
     }
 */
-    //Function to get all the account names
+    /* getPlayers gets all the account names
+    *  @param id receives the account id
+    *  @return the account names as strings
+    */
     @GET
     @Path("/accounts")
     @Produces("text/plain")
@@ -124,7 +134,10 @@ public class HelloWorld {
         return result;
     }
 
-    //Function to get all the account names
+    /* getStocks gets all the stock tickers
+    *  @param id receives the account id
+    *  @return the stock tickers as strings
+    */
     @GET
     @Path("/stocks")
     @Produces("text/plain")
@@ -147,7 +160,10 @@ public class HelloWorld {
         return result;
     }
 
-    //Function to get all the account names
+    /* getStocksIds gets all the stock tickers and IDs
+    *  @param id receives the account id
+    *  @return the stock tickers and IDs
+    */
     @GET
     @Path("/stocksIds")
     @Produces("text/plain")
@@ -185,8 +201,8 @@ public class HelloWorld {
      * because PUT is idempotent, meaning that running the same PUT several
      * times does not change the database.
      *
-     * @param id         the ID for the new player, assumed to be unique
-     * @param playerLine a string representation of the player in the format: emailAddress name
+     * @param id the ID for the new stock, assumed to be unique
+     * @param playerLine a string representation of the account in the format: username password
      * @return status message
      */
     @PUT
