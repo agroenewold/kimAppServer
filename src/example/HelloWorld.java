@@ -226,7 +226,7 @@ public class HelloWorld {
     @Path("/accountPost")
     @Consumes("text/plain")
     @Produces("text/plain")
-    public String postPlayer(String playerLine) {
+    public String postAccount(String playerLine) {
         String result;
         StringTokenizer st = new StringTokenizer(playerLine);
         int id = -1;
@@ -244,6 +244,48 @@ public class HelloWorld {
             statement.close();
             connection.close();
             result = "Account " + id + " added...";
+        } catch (Exception e) {
+            result = e.getMessage();
+        }
+        return result;
+    }
+
+    /**
+     * POST method for creating an instance of Account with a new, unique ID
+     * number. We do this because POST is not idempotent, meaning that running
+     * the same POST several times creates multiple objects with unique IDs but
+     * with the same values.
+     * <p/>
+     * The method creates a new, unique ID by querying the account table for the
+     * largest ID and adding 1 to that. Using a sequence would be a better solution.
+     *
+     * @param stockLine a string representation of the account in the format: password account
+     * @return status message
+     */
+    @POST
+    @Path("/stockPost")
+    @Consumes("text/plain")
+    @Produces("text/plain")
+    public String postStock(String stockLine) {
+        String result;
+        StringTokenizer st = new StringTokenizer(stockLine);
+        int id = -1;
+        String ticker = st.nextToken(":"), sector = st.nextToken(":");
+        float buyPrice = Float.parseFloat(st.nextToken(":")), targetPrice =  Float.parseFloat(st.nextToken(":"));
+        int sharesOwned = Integer.parseInt(st.nextToken(":"));
+        try {
+            Class.forName("org.postgresql.Driver");
+            Connection connection = DriverManager.getConnection(DB_URI, DB_LOGINID, DB_PASSWORD);
+            Statement statement = connection.createStatement();
+            ResultSet resultSet = statement.executeQuery("SELECT MAX(id) FROM Stock");
+            if (resultSet.next()) {
+                id = resultSet.getInt(1) + 1;
+            }
+            statement.executeUpdate("INSERT INTO Stock VALUES (" + id + ", '" + ticker + "', '" + sector + "', " + buyPrice + ", " + targetPrice + ", " + sharesOwned + ")");
+            resultSet.close();
+            statement.close();
+            connection.close();
+            result = "Stock " + ticker + " added...";
         } catch (Exception e) {
             result = e.getMessage();
         }
